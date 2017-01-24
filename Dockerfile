@@ -1,26 +1,71 @@
-# ubunut 15 saves about 50MB over ubuntu stable
-FROM ubuntu:15.10
-MAINTAINER Joey Baker <joey@byjoeybaker.com>
+FROM ubuntu:16.04
 
-ENV SYNCTHING_VERSION 0.14.19
+MAINTAINER Sebastien Allamand "sebastien@allamand.com"
 
-RUN apt-get update \
-  && apt-get upgrade -y --no-install-recommends \
-  && apt-get install curl ca-certificates -y --no-install-recommends \
-  && apt-get autoremove -y \
-  && apt-get clean
 
-# grab gosu for easy step-down from root
-RUN gpg --keyserver pgp.mit.edu --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
-  && curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.2/gosu-$(dpkg --print-architecture)" \
-  && curl -o /usr/local/bin/gosu.asc -L "https://github.com/tianon/gosu/releases/download/1.2/gosu-$(dpkg --print-architecture).asc" \
-  && gpg --verify /usr/local/bin/gosu.asc \
-  && rm /usr/local/bin/gosu.asc \
-  && chmod +x /usr/local/bin/gosu
+ENV LANG=C.UTF-8 \
+    DEBIAN_FRONTEND=noninteractive \
+    DEBCONF_NONINTERACTIVE_SEEN=true \
+    SYNCTHING_VERSION=0.14.20 \
+    GOSU_VERSION=1.9    			     
+
+###TODO: ajouter un check sur version SYNCTHONG et GOSU
+
+RUN set -x \
+    && apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && apt-get install curl wget ca-certificates -y --no-install-recommends \
+
+
+#Install GOSU source https://github.com/tianon/gosu
+    && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
+    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
+    && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+    && gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
+    && rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc \
+    && chmod +x /usr/local/bin/gosu \
+    && gosu nobody true \
+    
+
+    && apt-get purge -y --auto-remove -y wget \
+    && apt-get clean
+
+
+
+
+
+ARG VCF_REF
+ARG BUILD_DATE
+LABEL org.label-schema.docker.dockerfile="/Dockerfile" \
+      org.label-schema.license="MIT" \
+      org.label-schema.name="syncthing" \
+      org.label-schema.url="https://syncthing.net/" \
+      org.label-schema.vcs-type="Git" \
+      org.label-schema.vcs-url="https://github.com/allamand/docker-syncthing" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-ref=$VCS_REF
+
+
+ARG MYUSERNAME=syncthing
+ARG MYGROIUPNAME=sync
+ARG MYUID=1000
+ARG MYGID=1000
+ENV USERNAME=${MYUSERNAME} \
+    GROUPNAME=${MYGROUPNAME} \
+    UID=${MYUID} \
+    GID=${MYGID}
 
 # get syncthing
 WORKDIR /srv
-RUN useradd --no-create-home -g users syncthing
+
+RUN echo 'Creating user: ${MYUSERNAME} wit UID $UID' \
+    && groupadd -g $GID sync \
+    && useradd --uid $UID --no-create-home -g sync $USERNAME
+#RUN useradd --no-create-home -g users syncthing
+
+
 RUN curl -L -o syncthing.tar.gz https://github.com/syncthing/syncthing/releases/download/v$SYNCTHING_VERSION/syncthing-linux-amd64-v$SYNCTHING_VERSION.tar.gz \
   && tar -xzvf syncthing.tar.gz \
   && rm -f syncthing.tar.gz \
@@ -33,9 +78,10 @@ RUN curl -L -o syncthing.tar.gz https://github.com/syncthing/syncthing/releases/
 VOLUME ["/srv/data", "/srv/config"]
 
 ADD ./start.sh /srv/start.sh
-RUN chmod 770 /srv/start.sh
+RUN chmod 770 /srv/start.sh && chown -R $USERNAME:$GROUPNAME /srv/
 
-ENV UID=1027
+#USER $USERNAME
 
 ENTRYPOINT ["/srv/start.sh"]
 
+#CMD ["bash"]

@@ -14,8 +14,9 @@ if [ ! -f /srv/config/config.xml ]; then
 fi
 
 usermod -u $UID syncthing
+usermod -g $GID syncthing
 # set permissions so that we have access to volumes
-chown -R syncthing:users /srv/config /srv/data /srv/syncthing &
+chown -R syncthing:sync /srv/config /srv/data /srv/syncthing &
 chmod -R 770 /srv/config /srv/data &
 
 gosu syncthing /srv/syncthing/syncthing -home=/srv/config
