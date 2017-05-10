@@ -20,6 +20,7 @@ run:rm
 	-v ${HOME}/test-sync:/srv/test-sync \
 	-v ${HOME}/working:/srv/working \
 	-v ${HOME}/tools:/srv/tools \
+	-v ${HOME}/go:/srv/go \
 	-p 22000:22000  -p 21025:21025/udp -p 8080:8080 \
 	-e UID=$(shell id -u) -e GID=$(shell id -g) \
 	--name syncthing \

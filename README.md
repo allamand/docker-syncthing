@@ -4,27 +4,33 @@ Run [syncthing](https://syncthing.net) from a docker container
 
 ## Install
 ```sh
-docker pull joeybaker/syncthing
+docker pull sebmoule/syncthing
 ```
 
 ## Usage
 
+You need to bind-mount every folder you want to synchronize within syncthing.
+In this case I want to synchronize /home/sync, /home/work, /home/tools, /home/go directories
+
+Once they exists inside the syncthing container we can configure them in the UI to be synchronized.
+You need to launch the syncthing container on everyhost you wants to synchronize.
+
+Example usage :
 ```sh
 docker run -d --restart=always \
 	-v ${HOME}/sync:/srv/data \
-	-v ${HOME}/syncthing:/srv/config \
-	-v ${HOME}/test-sync:/srv/test-sync \
-	-v ${HOME}/working:/srv/working \
+	-v ${HOME}/work:/srv/work \
 	-v ${HOME}/tools:/srv/tools \
+	-v ${HOME}/go:/srv/go \	
 	-p 22000:22000  -p 21025:21025/udp -p 8080:8080 \
 	-e UID=$(shell id -u) -e GID=$(shell id -g) \
 	--name syncthing \
 	sebmoule/syncthing
 ```
 
-If you want to add a new folder, make sure you set the path to something in `/srv/data`.
-
 We give your linux user UID and GID to the container so that it can adapt the user right inside the container to those you really have.
+
+> Syncthing will create a file `.stfolder` in each directory it synchronized. You need to keep this special file untouched.
 
 ## Developing
 
@@ -41,4 +47,4 @@ make run
 
 ## Crédit
 
-original work taken from @joeybaker
+original work taken from @joeybaker - joeybaker/syncthing
