@@ -77,11 +77,11 @@ RUN curl -L -o syncthing.tar.gz https://github.com/syncthing/syncthing/releases/
 
 VOLUME ["/srv/data", "/srv/config"]
 
-ADD ./start.sh /srv/start.sh
-RUN chmod 770 /srv/start.sh && chown -R $USERNAME:$GROUPNAME /srv/
+ADD ./entrypoint.sh /srv/entrypoint.sh
+RUN chmod 770 /srv/entrypoint.sh && chown -R $USERNAME:$GROUPNAME /srv/
 
 #USER $USERNAME
 
-ENTRYPOINT ["/srv/start.sh"]
+ENTRYPOINT ["/srv/entrypoint.sh"]
 
 #CMD ["bash"]
