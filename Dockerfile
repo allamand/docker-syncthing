@@ -6,8 +6,8 @@ MAINTAINER Sebastien Allamand "sebastien@allamand.com"
 ENV LANG=C.UTF-8 \
     DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true \
-    SYNCTHING_VERSION=0.14.20 \
-    GOSU_VERSION=1.9    			     
+    SYNCTHING_VERSION=0.14.37 \ # check latest version at https://github.com/syncthing/syncthing/releases/latest
+    GOSU_VERSION=1.10 # Check latest version at https://github.com/tianon/gosu/releases/latest
 
 ###TODO: ajouter un check sur version SYNCTHONG et GOSU
 
@@ -60,7 +60,7 @@ ENV USERNAME=${MYUSERNAME} \
 # get syncthing
 WORKDIR /srv
 
-RUN echo 'Creating user: ${MYUSERNAME} wit UID $UID' \
+RUN echo 'Creating user: ${MYUSERNAME} with UID $UID' \
     && groupadd -g $GID sync \
     && useradd --uid $UID --no-create-home -g sync $USERNAME
 #RUN useradd --no-create-home -g users syncthing
