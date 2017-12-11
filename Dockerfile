@@ -6,7 +6,7 @@ MAINTAINER Sebastien Allamand "sebastien@allamand.com"
 ENV LANG=C.UTF-8 \
     DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true \
-    SYNCTHING_VERSION=0.14.37 \ 
+    SYNCTHING_VERSION=0.14.41 \ 
     GOSU_VERSION=1.10 
 
 ###TODO: ajouter un check sur version SYNCTHONG et GOSU
