@@ -1,7 +1,7 @@
 
 
 build:
-	docker build -t sebmoule/syncthing \
+	docker build -t sebmoule/docker-syncthing \
 	--build-arg MYGID=1000 --build-arg MYUID=1000 \
 	.
 
@@ -24,7 +24,7 @@ run:rm
 	-p 22000:22000  -p 21025:21025/udp -p 8080:8080 \
 	-e UID=$(shell id -u) -e GID=$(shell id -g) \
 	--name syncthing \
-	sebmoule/syncthing
+	sebmoule/docker-syncthing
 
 run-bash:
 	docker run --rm -ti \
@@ -33,6 +33,6 @@ run-bash:
 	-v ${HOME}/test-sync:/srv/test-sync \
 	-p 22000:22000  -p 21025:21025/udp -p 8080:8080 \
 	-e UID=$(shell id -u) -e GID=$(shell id -g) \
-	sebmoule/syncthing
+	sebmoule/docker-syncthing
 
 
